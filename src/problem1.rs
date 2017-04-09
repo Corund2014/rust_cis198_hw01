@@ -12,8 +12,21 @@ pub fn sum(slice: &[i32]) -> i32 {
 /// the first instance of each distinct element of `vs`, preserving the
 /// original order.
 pub fn dedup(vs: &Vec<i32>) -> Vec<i32> {
-    // TODO
-    unimplemented!();
+    let mut unique_vec=Vec::new();
+    
+    for x in vs
+    {
+        let mut duplicate:bool=false;
+        for y in &unique_vec {
+            if x==y 
+            {
+                duplicate=true;
+                break;
+            }
+        }
+        if !duplicate {unique_vec.push(*x)}
+    }
+    unique_vec
 }
 
 /// Filters a vector `vs` using a predicate `pred` (a function from `i32` to

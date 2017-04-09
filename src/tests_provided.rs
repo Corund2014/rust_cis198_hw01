@@ -18,7 +18,7 @@ fn test_sum_small() {
 }
 
 // Part 2
-/*
+
 #[test]
 fn test_dedup_small() {
     let vs = vec![1,2,2,3,4,1];
@@ -26,7 +26,7 @@ fn test_dedup_small() {
 }
 
 // Part 3
-
+/*
 fn even_predicate(x: i32) -> bool {
     (x % 2) == 0
 }
