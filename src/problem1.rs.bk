@@ -1,7 +1,7 @@
 /// Computes the sum of all elements in the input i32 slice named `slice`
 pub fn sum(slice: &[i32]) -> i32 {
     // TODO
-    let mut sum_result: i32 = 0;
+    let mut sum_result:i32=0;
     for x in slice {
         sum_result += *x;
     }
@@ -12,19 +12,19 @@ pub fn sum(slice: &[i32]) -> i32 {
 /// the first instance of each distinct element of `vs`, preserving the
 /// original order.
 pub fn dedup(vs: &Vec<i32>) -> Vec<i32> {
-    let mut unique_vec = Vec::new();
-
-    for x in vs {
-        let mut duplicate: bool = false;
+    let mut unique_vec=Vec::new();
+    
+    for x in vs
+    {
+        let mut duplicate:bool=false;
         for y in &unique_vec {
-            if x == y {
-                duplicate = true;
+            if x==y 
+            {
+                duplicate=true;
                 break;
             }
         }
-        if !duplicate {
-            unique_vec.push(*x)
-        }
+        if !duplicate {unique_vec.push(*x)}
     }
     unique_vec
 }
