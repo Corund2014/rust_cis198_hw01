@@ -1,5 +1,6 @@
 #![cfg(test)]
 use problem2::{mat_mult,Matrix};
+use problem3::sieve;
 
 
 
@@ -14,4 +15,12 @@ fn identity_matrix_multiplication()
                                 vec![9.2,-50.4,9.2]];
     let result_matrix=mat_mult(&random_matrix,&identity3x3);
     assert_eq!(random_matrix,result_matrix );
+}
+
+#[test]
+fn primes_up_to_ten()
+{
+    let test_vector:Vec<u32>=vec![2,3,5,7];
+    let result=sieve(10);
+    assert_eq!(test_vector,result);
 }
