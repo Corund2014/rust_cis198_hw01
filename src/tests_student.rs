@@ -1,1 +1,17 @@
+#![cfg(test)]
+use problem2::{mat_mult,Matrix};
 
+
+
+#[test]
+fn identity_matrix_multiplication()
+{
+    let identity3x3:Matrix=vec![vec![1.0,0.0,0.0],
+                                vec![0.0,1.0,0.0],
+                                vec![0.0,0.0,1.0]];
+    let random_matrix:Matrix=vec![vec![-1.5,4.2,2.9],
+                                vec![0.0,10.4,-3.0],
+                                vec![9.2,-50.4,9.2]];
+    let result_matrix=mat_mult(&random_matrix,&identity3x3);
+    assert_eq!(random_matrix,result_matrix );
+}
