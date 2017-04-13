@@ -17,19 +17,76 @@ pub type Move = (Peg, Peg);
 /// `dst`.
 pub fn hanoi(num_discs: u32, src: Peg, aux: Peg, dst: Peg) -> Vec<Move> {
     let mut moves:Vec<Move>=Vec::new();
-    let mut src_peg:Vec<u32>=fill_src(num_discs);
-    let mut aux_peg:Vec<u32>=Vec::new();
-    let mut dst_peg:Vec<u32>=Vec::new();
-    let mut possible_moves:Vec<Move>=Vec::new();
-    let target_result=src_peg.clone();
+    let mut src_vec:Vec<u32>=fill_src(num_discs);
+    let mut aux_vec:Vec<u32>=Vec::new();
+    let mut dst_vec:Vec<u32>=Vec::new();
+    let is_even_pegs=if num_discs%2==0 {true} else {false};
+    let move1:Move=if is_even_pegs {(src,aux)}else{(src,dst)};
+    let move2:Move=if is_even_pegs {(src,dst)}else{(src,aux)};
+    let move3:Move=(aux,dst);
+    let move1swap=(move1.1,move1.0);
+    let move2swap=(move2.1,move2.0);
+    let move3swap=(move3.1,move3.0);
+    let num=num_discs as usize;
     
-    while dst_peg!=target_result
-    {
-        generate_possible_moves(&mut possible_moves,&src_peg,&aux_peg,&dst_peg,&src,&aux,&dst);
-        apply_constraints(&possible_moves,&moves,&src_peg,&aux_peg,&dst_peg,&src,&aux,&dst);//should remove all moves except 1 possible move
-        moves.push(possible_moves.pop().unwrap());
+    loop {
+        
+        if is_legal_move(&move1,&src,&aux,&dst,&src_vec,&aux_vec,&dst_vec)
+        {
+            moves.push(move1.clone());
+        }
+        else
+        {
+            moves.push(move1swap.clone());
+        }
+
+        if dst_vec.len()== num {break;}
+        //move2
+        if is_legal_move(&move2,&src,&aux,&dst,&src_vec,&aux_vec,&dst_vec)
+        {
+            moves.push(move2.clone());
+        }
+        else
+        {
+            moves.push(move2swap.clone());
+        }        
+        if dst_vec.len()==num {break;}
+        //move3
+        if is_legal_move(&move3,&src,&aux,&dst,&src_vec,&aux_vec,&dst_vec)
+        {
+            moves.push(move3.clone());
+        }
+        else
+        {
+            moves.push(move3swap.clone());
+        }
+        if dst_vec.len()==num {break;}
     }
+
+
     moves
+
+}
+
+
+
+fn is_legal_move(next_move:&Move,src: &Peg, aux: &Peg, dst: &Peg,src_vec:&Vec<u32>,aux_vec:&Vec<u32>,dst_vec:&Vec<u32>)->bool
+{
+    let &(start_peg,end_peg)=next_move;
+    let start_vec=match start_peg {
+       src => src_vec,
+       aux => aux_vec,
+       dst => dst_vec,
+    };
+    let end_vec=match end_peg {
+       src => src_vec,
+       aux => aux_vec,
+       dst => dst_vec,
+    };
+    if start_vec.is_empty(){false}
+    else if end_vec.is_empty() {true}
+    else if start_vec.last().unwrap()<end_vec.last().unwrap(){true}
+    else {false}
 }
 
 fn fill_src(num_discs:u32)->Vec<u32>
@@ -42,62 +99,4 @@ fn fill_src(num_discs:u32)->Vec<u32>
     }
 
     src_peg
-}
-
-fn generate_possible_moves(possible_moves:&mut Vec<Move>,src_vec:&Vec<u32>,aux_vec:&Vec<u32>,dst_vec:&Vec<u32>,src: &Peg, aux: &Peg, dst: &Peg)->()
-{
-    assert!(possible_moves.is_empty());//should be empty at beginning
-    if !src_vec.is_empty()
-    {
-        possible_moves.push((*src,*aux));
-        possible_moves.push((*src,*dst));
-    }
-    if !aux_vec.is_empty()
-    {
-        possible_moves.push((*aux,*src));
-        possible_moves.push((*aux,*dst));
-    }
-    if !dst_vec.is_empty()
-    {
-        possible_moves.push((*src,*aux));
-        possible_moves.push((*src,*dst));
-    }
-    assert!(!possible_moves.is_empty());//no possible moves check
-}
-
-    ///apply 4 constraints:
-    ///1. No odd disk may be placed directly on an odd disk.
-    ///2. No even disk may be placed directly on an even disk.
-    ///3. There will be sometimes two possible pegs: one will have disks, and the other will be empty. Place the disk in the non-empty peg.
-    ///4. Never move a disk twice in succession.
-fn apply_constraints(possible_moves:&Vec<Move>,moves_history:&Vec<Move>,src_vec:&Vec<u32>,aux_vec:&Vec<u32>,dst_vec:&Vec<u32>,src: &Peg, aux: &Peg, dst: &Peg)->Move
-{
-    assert!(!possible_moves.is_empty());//should contain moves
-    let mut correct_move:Move=*possible_moves.last().unwrap();
-    for &(start_peg,end_peg) in possible_moves
-    {
-        let mut is_valid_move=true;
-        let start_vec=match start_peg {
-            src => src_vec,
-            aux => aux_vec,
-            dst => dst_vec,
-        };
-        let end_vec=match end_peg {
-            src => src_vec,
-            aux => aux_vec,
-            dst => dst_vec,
-        };
-        //1. No odd disk may be placed directly on an odd disk.
-        //2. No even disk may be placed directly on an even disk.
-        if (start_vec.last().unwrap()%2)== (end_vec.last().unwrap()%2) {is_valid_move=false;}
-        
-        //4. Never move a disk twice in succession.
-        match moves_history.last() {
-            Some(&(_,peg_last_move)) => if peg_last_move==start_peg {is_valid_move=false},
-            None => (),
-        }
-        if is_valid_move {correct_move=(start_peg,end_peg)};
-
-    }
-    correct_move
 }
