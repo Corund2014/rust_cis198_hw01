@@ -22,11 +22,12 @@ pub fn hanoi(num_discs: u32, src: Peg, aux: Peg, dst: Peg) -> Vec<Move> {
     let mut dst_peg:Vec<u32>=Vec::new();
     let mut possible_moves:Vec<Move>=Vec::new();
     let target_result=src_peg.clone();
+    
     while dst_peg!=target_result
     {
         generate_possible_moves(&mut possible_moves,&src_peg,&aux_peg,&dst_peg,&src,&aux,&dst);
-        apply_constraints(&mut possible_moves,&src_peg,&aux_peg,&dst_peg,&src,&aux,&dst);//should remove all moves except 1 possible move
-        moves.push(possible_moves.pop());
+        apply_constraints(&possible_moves,&moves,&src_peg,&aux_peg,&dst_peg,&src,&aux,&dst);//should remove all moves except 1 possible move
+        moves.push(possible_moves.pop().unwrap());
     }
     moves
 }
@@ -69,8 +70,34 @@ fn generate_possible_moves(possible_moves:&mut Vec<Move>,src_vec:&Vec<u32>,aux_v
     ///2. No even disk may be placed directly on an even disk.
     ///3. There will be sometimes two possible pegs: one will have disks, and the other will be empty. Place the disk in the non-empty peg.
     ///4. Never move a disk twice in succession.
-
-fn generate_possible_moves(possible_moves:&mut Vec<Move>,src_vec:&Vec<u32>,aux_vec:&Vec<u32>,dst_vec:&Vec<u32>,src: &Peg, aux: &Peg, dst: &Peg)->()
+fn apply_constraints(possible_moves:&Vec<Move>,moves_history:&Vec<Move>,src_vec:&Vec<u32>,aux_vec:&Vec<u32>,dst_vec:&Vec<u32>,src: &Peg, aux: &Peg, dst: &Peg)->Move
 {
-    
+    assert!(!possible_moves.is_empty());//should contain moves
+    let mut correct_move:Move=*possible_moves.last().unwrap();
+    for &(start_peg,end_peg) in possible_moves
+    {
+        let mut is_valid_move=true;
+        let start_vec=match start_peg {
+            src => src_vec,
+            aux => aux_vec,
+            dst => dst_vec,
+        };
+        let end_vec=match end_peg {
+            src => src_vec,
+            aux => aux_vec,
+            dst => dst_vec,
+        };
+        //1. No odd disk may be placed directly on an odd disk.
+        //2. No even disk may be placed directly on an even disk.
+        if (start_vec.last().unwrap()%2)== (end_vec.last().unwrap()%2) {is_valid_move=false;}
+        
+        //4. Never move a disk twice in succession.
+        match moves_history.last() {
+            Some(&(_,peg_last_move)) => if peg_last_move==start_peg {is_valid_move=false},
+            None => (),
+        }
+        if is_valid_move {correct_move=(start_peg,end_peg)};
+
+    }
+    correct_move
 }
