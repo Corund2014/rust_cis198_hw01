@@ -70,15 +70,17 @@ pub fn hanoi(num_discs: u32, src: Peg, aux: Peg, dst: Peg) -> Vec<Move> {
 
 
 
-fn is_legal_move(next_move:&Move,src: &Peg, aux: &Peg, dst: &Peg,src_vec:&Vec<u32>,aux_vec:&Vec<u32>,dst_vec:&Vec<u32>)->bool
+fn is_legal_move(next_move:& Move, src: &Peg, aux: &Peg, dst: &Peg,src_vec:&Vec<u32>,aux_vec:&Vec<u32>,dst_vec:&Vec<u32>)->bool
 {
-    let &(start_peg,end_peg)=next_move;
-    let start_vec=match start_peg {
-       src => src_vec,
-       aux => aux_vec,
-       dst => dst_vec,
+    let (ref start_peg, ref end_peg)=*next_move;
+    //let ()=start_peg;
+    let ref start_vec=match *start_peg {
+       *src => src_vec,
+       *aux => aux_vec,
+       *dst => dst_vec,
     };
-    let end_vec=match end_peg {
+    
+    let ref end_vec=match end_peg {
        src => src_vec,
        aux => aux_vec,
        dst => dst_vec,
