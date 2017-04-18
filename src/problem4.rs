@@ -14,7 +14,20 @@ pub enum Peg {
 /// A move between two pegs: (source, destination).
 pub type Move = (Peg, Peg);
 
-/// Solves for the sequence of moves required to move all discs from `src` to /// `dst`.
+/// Solves for the sequence of moves required to move all discs from `src` to 
+/// `dst`.
+//Algorithm:
+//For an even number of disks:
+//1. make the legal move between pegs A and B (in either direction),
+//2. make the legal move between pegs A and C (in either direction),
+//3. make the legal move between pegs B and C (in either direction),
+//4. repeat until complete.
+//
+//For an odd number of disks:
+//1. make the legal move between pegs A and C (in either direction),
+//2. make the legal move between pegs A and B (in either direction),
+//3. make the legal move between pegs B and C (in either direction),
+//4. repeat until complete.
 pub fn hanoi(num_discs: u32, src: Peg, aux: Peg, dst: Peg) -> Vec<Move> {
     let mut moves: Vec<Move> = Vec::new();
     let mut vectors = HashMap::new();
@@ -28,37 +41,47 @@ pub fn hanoi(num_discs: u32, src: Peg, aux: Peg, dst: Peg) -> Vec<Move> {
     let moves_array:[Move;3]=[move1,move2,move3];
     let mut moves_index=0;
     let mut next_move;
-    for moves_counter in 0..2u32.pow(num_discs)-1
+
+    //problem should be solved in (2^n)-1 steps
+    for _ in 0..2u32.pow(num_discs)-1
     {
         next_move=moves_array[moves_index];
+        
+        //if move is illegal then switch pegs
         if !is_legal_move(&next_move,&vectors) {next_move=(next_move.1,next_move.0);}
         moves.push(next_move);
         let number=vectors.get_mut(&next_move.0).unwrap().pop().unwrap();
         vectors.get_mut(&next_move.1).unwrap().push(number);
-        println!("{}",moves_counter);
         moves_index+=1;
         if moves_index>2 {moves_index=0;}
     }
-    let result=vectors.get(&dst).unwrap();
-    println!("result vector = {:?}",result);
-    println!("result moves = {:?}",moves);
     moves
 }
 
+///check possible move is it legal:
+///1. starting Peg should not be empty
+///2. you can not place large disk on small
 fn is_legal_move(next_move: &Move,
                  vectors:&HashMap<Peg,Vec<u32>>)
                  -> bool 
 {
     let vector_start=vectors.get(&next_move.0).unwrap();
     let vector_end=vectors.get(&next_move.1).unwrap();
-    if vector_start.is_empty() {return false;}
-    else if vector_end.is_empty() {return true;}
-    let number_start=vector_start.last().unwrap();
-    let number_end=vector_end.last().unwrap();
+    let number_start;
+    let number_end;
+    match vector_start.last() {
+        Some(x) => number_start=x,
+        None => return false,
+    }
+    match vector_end.last() {
+        Some(x) => number_end=x,
+        None => return true,
+    }
     if number_start>number_end {return false;}
     true
 }
 
+///put disks at source Peg
 fn fill_src(num_discs: u32) -> Vec<u32> {
     let mut src_peg: Vec<u32> = Vec::new();
     let iter = (1..num_discs + 1).rev();
